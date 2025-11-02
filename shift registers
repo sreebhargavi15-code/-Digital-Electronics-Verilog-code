@@ -1,0 +1,276 @@
+SIS0_(SHIFT REGISTER):
+module siso(input clk,rst,din,enb,output dout);
+reg [3:0]temp;
+always@(posedge clk)
+begin
+if(rst)
+temp=4'b0000;
+else if(enb)
+begin
+//temp<=temp>>1'b1;
+//temp[3]<=din;
+temp<={din,temp[3:1]};
+temp[3]<=din;
+end
+end
+assign dout=temp[0];
+endmodule
+module siso(input clk,rst,din,enb,output dout);
+wire [3:0]w;
+dff d1(din,clk,rst,w[0]);
+dff d2(w[0],clk,rst,w[1]);
+dff d3(w[1],clk,rst,w[2]);
+dff d4(w[2],clk,rst,w[3]);
+assign dout = w[3];
+endmodule
+
+Test bench:
+module tb;
+reg clk,rst,din,enb;
+wire dout;
+siso dut (clk,rst,din,enb,dout);
+initial begin
+{clk,rst,enb,din}=0;
+end
+always #5  clk=~clk;
+initial begin
+@(posedge clk)
+rst=1;
+#10
+rst=0;
+#10;
+@(posedge clk)
+enb=1;
+din=1'b1;
+@(posedge clk)
+din=1'b0;
+@(posedge clk)
+din=1'b1;
+@(posedge clk)
+din = 1'b0;
+end
+endmodule
+
+
+SIPO:
+module sipo(input clk,rst,din,enb,output [3:0]dout);
+reg [3:0]temp;
+always@(posedge clk)
+begin
+if(rst)
+temp=4'b0000;
+else if(enb)
+begin
+temp<=temp>>1'b1;
+temp[3]<=din;
+//temp<={din,temp[3:1]};
+//temp[3]<=din;
+end
+end
+assign dout=temp;
+endmodule
+
+module sipo(input clk,rst,din,enb,output [3:0]dout);
+wire [3:0]w;
+dff d1(din,clk,rst,dout[3]);
+dff d2(dout[3],clk,rst,dout[2]);
+dff d3(dout[2],clk,rst,dout[1]);
+dff d4(dout[1],clk,rst,dout[0]);
+endmodule
+
+Test bench:
+
+module tb1;
+reg clk,rst,din,enb;
+wire [3:0]dout;
+sipo dut (clk,rst,din,enb,dout);
+initial begin
+{clk,rst,enb,din}=0;
+end
+always #5  clk=~clk;
+initial begin
+@(negedge clk)
+rst=1;
+#10
+rst=0;
+@(posedge clk)
+enb=1;
+din=1'b1;
+@(posedge clk)
+din=1'b0;
+@(posedge clk)
+din=1'b1;
+@(posedge clk)
+din = 1'b0;
+end
+endmodule
+
+
+PISO:
+module piso(input clk,rst,load,input[3:0]din,output  reg dout);
+reg [3:0]temp;
+always@(posedge clk)begin
+if (rst)
+temp<=4'b0000;
+else if(load )begin
+temp<=din;
+end
+else 
+begin
+//temp<=temp>>1'b1;
+//dout <= temp[0];
+temp<={temp[3:1],1'b0};
+dout <= temp[0];
+end
+ end
+endmodule
+
+module piso(input clk,rst,load,input [3:0]din,output dout);
+wire [3:0]w;
+dff d1(clk,rst,din[3],w[3]);
+dff d2(clk,rst,din[2],w[2]);
+dff d3(clk,rst,din[1],w[1]);
+dff d4(clk,rst,din[0],w[0]);
+assign dout=w[3];
+endmodule
+
+Test bench:
+
+module tb2;
+reg clk,rst,load;
+reg [3:0]din;
+wire dout;
+piso dut (clk,rst,load,din,dout);
+initial begin
+{clk,rst,load,din}=0;
+end
+always #5  clk=~clk;
+initial begin
+@(negedge clk)
+rst=1;
+#10
+rst=0;
+@(posedge clk)
+load=1;
+din=4'b1010;
+@(posedge clk)
+load =0;
+end
+endmodule
+
+
+
+PIPO:
+module pipo(input clk,rst,load,input[3:0]din,output  reg [3:0]dout);
+reg [3:0]temp;
+always@(posedge clk)begin
+if (rst)
+temp<=4'b0000;
+else if(load)begin
+temp<=din;
+end
+else 
+begin
+temp<=temp>>1'b1;
+end
+dout <= temp;
+ end
+endmodule
+
+Test bench:
+module tb3;
+reg clk,rst,load;
+reg [3:0]din;
+wire [3:0]dout;
+pipo dut (clk,rst,load,din,dout);
+initial begin
+{clk,rst,load,din}=0;
+end
+always #5  clk=~clk;
+initial begin
+@(negedge clk)
+rst=1;
+#10
+rst=0;
+@(posedge clk)
+load=1;
+din=4'b1010;
+@(posedge clk)
+load=0;
+end
+endmodule
+
+
+
+UNIVERSAL SHIFT REGISTER:
+module un_shift(input clk,rst,load,din1,input [1:0]mode,input [3:0]din,output sout,output [3:0]dout);
+reg [3:0]temp;
+always@(posedge clk)begin
+if(rst)
+temp<=4'b0000;
+else begin
+case(mode)
+//siso
+2'b00:begin
+      temp<=temp>>1'b1;
+      temp[3]<=din1;
+      end
+//piso
+2'b01:begin
+      if(load)
+      temp<=din;
+      else
+      temp<=temp>>1'b1;
+      end
+//sipo
+2'b10:begin
+      temp<=temp>>1'b1;
+      temp[3]<=din1;
+      end
+//pipo
+2'b11:begin
+      temp<=din;
+     
+      end
+endcase
+end
+end
+assign sout=(mode==2'b00||mode==2'b01)?temp[0]:0;
+assign dout=(mode==2'b10||mode==2'b11)?temp:0;
+endmodule
+
+Test bench:
+module un_shift_tb;
+reg clk,rst,load,din1;
+reg [1:0]mode;
+reg [3:0]din;
+wire sout;
+wire [3:0]dout;
+un_shift dut(clk,rst,load,din1,mode,din,sout,dout);
+initial begin
+{clk,rst,mode,load,din,din1}=0;
+end
+always #5 clk=~clk;
+initial begin
+rst=1;
+#10;
+rst=0;
+mode=2'b00;
+@(negedge clk)
+din1=1'b1;
+@(negedge clk)
+din1=1'b0;
+@(negedge clk)
+din1=1'b1;
+@(negedge clk)
+din1=1'b0;
+#50;
+@(negedge clk)
+//load=1;
+din=4'b1010;
+//@(negedge clk)
+//load=0;
+end
+endmodule
+
+
