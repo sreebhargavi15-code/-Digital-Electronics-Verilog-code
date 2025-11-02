@@ -1,0 +1,398 @@
+Half adder:
+gate level modeling:
+module ha(input a,b,output s,c);
+xor x1(s,a,b);
+and a1(c,a,b);
+endmodule
+
+Behavioural modeling:
+module ha(input a,b,output reg s,c);
+always@(*)begin
+s=a^b;
+c=a&b;
+end
+endmodule
+
+Dataflow modeling:
+module ha(input a,b,output s,c);
+assign s=a^b;
+assign c=a&b;
+endmodule
+
+Test bench:
+module ha_tb;
+reg a,b;
+wire s,c;
+integer i;
+ha dut(a,b,s,c);
+initial begin
+{a,b}=0;
+begin
+for(i=0;i<4;i=i+1)begin
+{a,b}=i;
+#1;
+$display("a=%b,b=%b,s=%b,c=%b",a,b,s,c);
+end
+end
+end
+endmodule
+
+
+Half subtractor:
+gatelevel modeling:
+module hs(input a,b,output d,bout);
+xor x1(d,a,b);
+not n1(abar,a);
+and a1(bout,abar,b);
+endmodule
+
+Behavioural modeling:
+module hs(input a,b,output reg d,bout);
+always@(*)begin
+d=a^b;
+bout=(~a&b);
+end
+endmodule
+
+Dataflow modeling:
+module hs(input a,b,output d,bout);
+assign d=a^b;
+assign bout = (~a)&b;
+endmodule
+
+Test bench:
+module hs_tb;
+reg a,b;
+wire d,bout;
+integer i;
+hs dut(a,b,d,bout);
+initial begin
+{a,b}=0;
+begin
+for(i=0;i<4;i=i+1)begin
+#1;
+{a,b}=i;
+#1;
+$display("a=%b,b=%b,d=%b,bout=%b",a,b,d,bout);
+end
+end
+end
+endmodule
+
+
+Full adder:
+Gatelevel modeling:
+module fa(input a,b,cin,output s,c);
+wire w1,w2,w3;
+xor x1(s,a,b,cin);
+and a1(w1,a,b);
+and a2(w2,a,cin);
+and a3(w3,cin,b);
+or r1(c,w1,w2,w3);
+endmodule
+
+Behavioural modeling:
+module fa(input a,b,cin,output reg s,c);
+always@(*)begin
+s=a^b^cin;
+c=(a&b)|(b&cin)|(cin&a);
+end
+endmodule
+
+Dataflow modeling:
+module fa(input a,b,cin,output s,c);
+assign s=a^b^cin;
+assign c=(a&b)|(b&cin)|(cin&a);
+endmodule
+
+Test bench:
+module fa_tb;
+reg a,b,cin;
+wire s,c;
+integer i;
+fa dut(a,b,cin,s,c);
+initial begin
+{a,b,cin}=0;
+begin
+for(i=0;i<8;i=i+1)begin
+#1;
+{a,b,cin}=i;
+#1;
+end
+end
+end
+endmodule
+
+
+Full subtractor:
+gatelevel modeling:
+module fs(input a,b,cin,output diff,barrow);
+not n1(abar,a);
+not n2(bbar,b);
+not n3(cinbar,cin);
+xor x1(diff,a,b,cin);
+and a1(w1,b,cin);
+and a2(w2,abar,cin);
+and a3(w3,abar,b);
+or r1(barrow,w1,w2,w3);
+endmodule
+
+Behavioural modeling:
+module fs(input a,b,cin,output reg diff,barrow);
+always@(*)begin
+diff=a^b^cin;
+barrow=((~a)&b)|(~a&cin)|(b&cin);
+end
+endmodule
+
+Dataflow modeling:
+module fs(input a,b,cin,output diff,barrow);
+assign diff=a^b^cin;
+assign barrow=(~a&b)|(~a&cin)|(b&cin);
+endmodule
+
+Test bench:
+module fs_tb;
+reg a,b,cin;
+wire diff,barrow;
+integer i;
+fs dut(a,b,cin,diff,barrow);
+initial begin
+{a,b,cin}=0;
+begin
+for(i=0;i<8;i=i+1)begin
+#1;
+{a,b,cin}=i;
+#1;
+end
+end
+end
+endmodule
+
+
+Ripple carry adder:
+module rca(input [3:0]a,b,input [3:0]cin,output [3:0]s,output cout);
+wire [2:0]w;
+fa f1(a[0],b[0],cin,s[0],w[0]);
+fa f2(a[1],b[1],w[0],s[1],w[1]);
+fa f3(a[2],b[2],w[1],s[2],w[2]);
+fa f4(a[3],b[3],w[2],s[3],cout);
+endmodule       
+                                                   
+Test bench:
+module rca_tb;
+reg [3:0]a,b;
+reg [3:0]cin;
+wire [3:0]s;
+wire cout;
+integer i;
+rca dut(a,b,cin,s,cout);
+initial begin
+{a,b,cin}=0;
+begin
+for(i=0;i<512;i=i+1)begin
+#1;
+{a,b,cin}=i;
+#1;
+end
+end
+end
+endmodule
+
+
+BCD Adder:
+Dataflow modeling:
+module bcd(input [3:0]a,b,cin,output [3:0]s,output cout);
+wire [3:0]w1;
+wire w2,w3,w4,w5;
+rca r1(a,b,cin,w1,w2);
+rca r2(w1,{1'b0,w5,w5,1'b0},1'b0,s,cout);
+assign w3=w1[1]|w1[2];
+assign w4=w1[3]&w3;
+assign w5=w3|w4;
+endmodule
+
+Gatelevel modeling:
+module bcd(input [3:0]a,b,cin,output [3:0]s,output cout);
+wire [3:0]w1;
+wire w2,w3,w4,w5;
+rca r1(a,b,cin,w1,w2);
+rca r2(w1,{1'b0,w5,w5,1'b0},1'b0,s,cout);
+or r11(w3,w1[1],w1[2]);
+and a1(w4,w1[3],w3);
+or r12(w5,w3,w4);
+endmodule
+
+Behavioural modeling:
+module bcd(input [3:0]a,b,cin,output reg [3:0]s,output cout);
+wire  [3:0]w1;
+wire w2;
+reg [3:0]temp;
+reg valid;
+always@(*)begin
+if(a<=4'b1001&&b<=4'b1001)
+if(valid==0)
+s=w1;
+else begin
+temp=w1;
+temp=temp+4'b0110;
+s=temp;
+end
+end
+always@(*)begin
+valid=w2+((w1[1]*w1[2])+w1[3]);
+end
+rca r1(a,b,cin,w1,cout);
+endmodule
+
+Test bench:
+module bcd_tb;
+reg [3:0]a,b,cin;
+wire [3:0]s;
+wire cout;
+integer i;
+bcd dut(.a(a),.b(b),.cin(cin),.s(s),.cout(cout));
+initial begin
+{a,b,cin}=0;
+begin
+for(i=0;i<4096;i=i+1)begin
+#1;
+{a,b,cin}=i;
+#1;
+$display("a=%b,b=%b,cin=%b,s=%b,cout=%b",a,b,cin,s,cout);
+end
+end
+end
+endmodule
+
+
+CLA:
+module cla_gen(input [3:0]a,b,cin,output cout);
+assign cout=(a&b)|(a^b)&cin;
+endmodule
+module cla(input [3:0]a,b,cin,output [3:0]s,output cout);
+wire [2:0]w;
+wire [3:0]c;
+fa f1(a[0],b[0],cin,s[0],c[0]);
+cla_gen c11(a[0],b[0],c[0],w[0]);
+fa f2(a[1],b[1],w[0],s[1],c[1]);
+cla_gen c12(a[1],b[1],c[1],w[1]);
+fa f3(a[2],b[2],w[1],s[2],c[2]);
+cla_gen c13(a[2],b[2],c[2],w[2]);
+fa f4(a[3],b[3],w[2],s[3],c[3]);
+cla_gen c14(a[3],b[3],c[3],cout);
+endmodule
+
+
+Test bench:
+module cla_tb;
+reg [3:0]a,b,cin;
+wire [3:0]s;
+wire cout;
+integer i;
+cla dut(.a(a),.b(b),.cin(cin),.s(s),.cout(cout));
+initial begin
+{a,b,cin}=0;
+begin
+for(i=0;i<4026;i=i+1)
+begin
+{a,b,cin}=i;
+#5;
+end
+$display("a=%b,b=%b,cin=%b,s=%b,cout=%b",a,b,cin,s,cout);
+end
+end
+endmodule
+
+
+FA using HA:
+dataflow modeling:
+module fa_ha(input a,b,cin,output s,cout);
+wire w1,w2,w3;
+ha h1(a,b,w1,w2);
+ha h2(w1,cin,s,w3);
+assign cout=w3|w2;
+endmodule
+
+Behavioural modeling:
+module fa_ha(input a,b,cin,output s,reg cout);
+wire w1,w2,w3;
+ha h1(a,b,w1,w2);
+ha h2(w1,cin,s,w3);
+always@(*)begin
+cout=w3|w2;
+end
+endmodule
+
+gatelevel modeling:
+module fa_ha(input a,b,cin,output s, cout);
+wire w1,w2,w3;
+ha h1(a,b,w1,w2);
+ha h2(w1,cin,s,w3);
+or r1(cout,w2,w3);
+endmodule
+
+Test bench:
+module fa_ha_tb;
+reg a,b,cin;
+wire s,cout;
+integer i;
+fa_ha dut(a,b,cin,s,cout);
+initial begin
+{a,b,cin}=0;
+begin
+for(i=0;i<8;i=i+1)begin
+{a,b,cin}=i;
+#5;
+end
+end
+end
+endmodule
+
+
+FS using HS:
+Dataflow modeling:
+module fs_hs(input a,b,cin,output d,bout);
+wire w1,w2,w3;
+ha h1(a,b,w1,w2);
+ha h2(w1,cin,d,w3);
+assign bout=w3|w2;
+endmodule
+
+Behavioural modeling:
+module fa_ha(input a,b,cin,output d,reg bout);
+wire w1,w2,w3;
+ha h1(a,b,w1,w2);
+ha h2(w1,cin,d,w3);
+always@(*)begin
+bout=w3|w2;
+end
+endmodule
+
+gatelevel modeling:
+module fs_hs(input a,b,cin,output d, bout);
+wire w1,w2,w3;
+ha h1(a,b,w1,w2);
+ha h2(w1,cin,d,w3);
+or r1(bout,w2,w3);
+endmodule
+
+Test bench:
+module fs_hs_tb;
+reg a,b,cin;
+wire d,bout;
+integer i;
+fs_hs dut(a,b,cin,d,bout);
+initial begin
+{a,b,cin}=0;
+begin
+for(i=0;i<8;i=i+1)begin
+{a,b,cin}=i;
+#5;
+end
+end
+end
+endmodule
+
+
+
