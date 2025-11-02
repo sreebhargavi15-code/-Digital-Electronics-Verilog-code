@@ -1,0 +1,202 @@
+SR_LATCH:
+module sr_latch(input enb,rst,s,r,output reg q,qbar);
+always@(enb)begin
+if(enb)begin
+if(rst)begin
+q<=0;
+qbar<=1;
+end
+else if(s==0&&r==0)begin
+q<=q;
+qbar<=qbar;
+end
+else if (s==0&&r==1)begin
+q<=1'b0;
+qbar<=1'b1;
+end
+else if(s==1&&r==0)begin
+q<=1'b1;
+qbar<=1'b0;
+end
+else if(s==1&&r==1)begin
+q<=1'bx;
+qbar<=1'bx;
+end
+end
+end
+endmodule
+
+Test bench:
+module sr_latch_tb;
+reg enb,rst,s,r;
+wire q,qbar;
+sr_latch dut(enb,rst,s,r,q,qbar);
+initial begin
+{enb,rst,s,r}=0;
+end
+always #5 enb=~enb;
+initial begin
+rst=1;
+#10;
+rst=0;
+#15;
+s=0;
+r=0;
+#10;
+s=0;
+r=1;
+#10;
+s=1;
+r=0;
+#10;
+s=1;
+r=1;
+#10;
+$monitor("s=%b,r=%b,q=%b,qbar=%b",s,r,q,qbar);
+end
+endmodule
+
+
+JK_LATCH:
+module jk_latch(input enb,rst,j,k,output reg q,qbar);
+always@(enb)begin
+if(enb)begin
+if(rst)begin
+q<=0;
+qbar<=1;
+end
+else if(j==0&&k==0)begin
+q<=q;
+qbar<=qbar;
+end
+else if(j==0&&k==1)begin
+q<=0;
+qbar<=1;
+end
+else if(j==1&&k==0)begin
+q<=1;
+qbar<=0;
+end
+else if(j==1&&k==1)begin
+q<=q;
+qbar<=qbar;
+end
+end
+end
+endmodule
+
+Test bench:
+module jk_latch_tb;
+reg enb,rst,j,k;
+wire q,qbar;
+jk_latch dut(enb,rst,j,k,q,qbar);
+initial begin
+{enb,rst,j,k}=0;
+end
+always #5 enb=~enb;
+initial begin
+rst=1;
+#10;
+rst=0;
+#15;
+j=0;
+k=0;
+#10;
+j=0;
+k=1;
+#10;
+j=1;
+k=0;
+#10;
+j=1;
+k=1;
+#10;
+$monitor("j=%b,k=%b",enb,j,k);
+end
+endmodule
+
+
+
+D_LATCH:
+module d_latch(input enb,rst,d,output reg q,qbar);
+always@(enb)begin
+if(enb)begin
+if(rst)begin
+q<=0;
+qbar<=1;
+end
+else if(d==0)begin
+q<=q;
+qbar<=qbar;
+end
+else if(d==1)begin
+q<=1;
+qbar<=0;
+end
+end
+end
+endmodule
+
+Test bench:
+module d_latch_tb;
+reg enb,rst,d;
+wire q,qbar;
+d_latch dut(enb,rst,d,q,qbar);
+initial begin
+{enb,rst,d}=0;
+end
+always #5 enb=~enb;
+initial begin
+rst=1;
+#10;
+rst=0;
+#15;
+d=0;
+#10;
+d=1;
+end
+endmodule
+
+
+
+T_LATCH:
+module t_latch(input enb,rst,t,output reg q,qbar);
+always@(enb)begin
+if(enb)begin
+if(rst)begin
+q<=0;
+qbar<=1;
+end
+else if(t==0)begin
+q<=1;
+qbar<=0;
+end
+else if(t==1)begin
+q<=0;
+qbar<=1;
+end
+end
+end
+endmodule
+
+Test bench:
+module t_latch_tb;
+reg enb,rst,t;
+wire q,qbar;
+t_latch dut(enb,rst,t,q,qbar);
+initial begin
+{enb,rst,t}=0;
+end
+always #5 enb=~enb;
+initial begin
+rst=1;
+#10;
+rst=0;
+#10;
+t=0;
+#10;
+t=1;
+end
+endmodule
+
+
