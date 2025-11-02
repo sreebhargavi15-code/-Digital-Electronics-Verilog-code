@@ -1,0 +1,378 @@
+
+f/3 with 50%:
+module f3_with_50(input clk,rst,output reg [1:0] count,output y,reg enb1,enb2);
+always@(posedge clk)begin
+if(rst)
+count<=0;
+else if(count<2)
+count<=count+1'b1;
+else
+count<=0;
+end
+always@(posedge clk)
+begin
+if(count==2)
+enb1<=1;
+else
+enb1<=0;
+end
+always@(negedge clk)
+begin
+if(count==0)
+enb2<=1;
+else
+enb2<=0;
+end
+assign y=enb1|enb2;
+endmodule
+
+
+test bench:
+module f3_with_50tb;
+reg clk,rst;
+wire [1:0]count;
+wire enb1,enb2,y;
+f3_with_50 dut(clk,rst,count,enb1,enb2,y);
+initial begin
+{clk,rst}=0;
+end
+always #5 clk=~clk;
+initial begin
+rst=1;
+#10;
+rst=0;
+end
+endmodule
+
+
+f/5 with 50%:
+module f5_50(input clk,rst,output reg [2:0]count,output y,reg enb1,enb2);
+always@(posedge clk)begin
+if(rst)
+count<=0;
+else if(count<4)
+count<=count+1'b1;
+else
+count<=0;
+end
+always@(posedge clk)begin
+if(count==4||count<1)
+enb1<=1;
+else 
+enb1<=0;
+end
+always@(negedge clk)begin
+if(count==1)
+enb2<=1;
+else
+enb2<=0;
+end
+assign y=enb1|enb2;
+endmodule
+
+test bench:
+module f_50tb1;
+reg clk,rst;
+wire [2:0]count;
+wire enb1,enb2,y;
+f5_50 dut(clk,rst,count,y,enb1,enb2);
+initial begin
+{clk,rst}=0;
+end
+always #5 clk=~clk;
+initial begin
+rst=1;
+#10;
+rst=0;
+end
+endmodule
+
+
+
+f/7 with 50%:
+module f7_50(input clk,rst,output reg [2:0]count,output y,reg enb1,enb2);
+always@(posedge clk)begin
+if(rst)
+count<=0;
+else if(count<6)
+count<=count+1'b1;
+else
+count<=0;
+end
+always@(posedge clk)begin
+if(count==6||count<2)
+enb1<=1;
+else 
+enb1<=0;
+end
+always@(negedge clk)begin
+if(count==2)
+enb2<=1;
+else
+enb2<=0;
+end
+assign y=enb1|enb2;
+endmodule
+
+test bench:
+module f7_50tb;
+reg clk,rst;
+wire [2:0]count;
+wire enb1,enb2,y;
+f7_50 dut(clk,rst,count,y,enb1,enb2);
+initial begin
+{clk,rst}=0;
+end
+always #5 clk=~clk;
+initial begin
+rst=1;
+#10;
+rst=0;
+end
+endmodule
+
+
+f/1.5 :
+module f_15(input clk,rst,output reg [1:0]count,output y,reg enb1,enb2);
+always@(posedge clk)begin
+if(rst)
+count<=0;
+else if(count<2)
+count<=count+1'b1;
+else 
+count<=0;
+end
+always@(posedge clk)begin
+if(count==2)
+enb1<=1;
+else
+enb1<=0;
+end
+always@(negedge clk)begin
+if(count==1)
+enb2<=1;
+else
+enb2<=0;
+end
+assign y=enb1|enb2;
+endmodule
+
+Test bench:
+module f_15tb;
+reg clk,rst;
+wire [1:0]count;
+wire enb1,enb2,y;
+f_15 dut(clk,rst,count,y,enb1,enb2);
+initial begin
+{clk,rst}=0;
+end
+always #5 clk=~clk;
+initial begin
+rst=1;
+#10;
+rst=0;
+end
+endmodule
+
+
+f/2.5:
+module f_25(input clk,rst,output reg [2:0]count,output y, reg enb1,enb2);
+always@(posedge clk)begin
+if(rst)
+count<=0;
+else if(count<4)
+count<=count+1'b1;
+else
+count<=0;
+end
+always@(posedge clk)begin
+if(count==4||count==0)
+enb1<=1;
+else
+enb1<=0;
+end
+always@(negedge clk)begin
+if(count==2||count==3)
+enb2<=1;
+else
+enb2<=0;
+end
+assign y=enb1|enb2;
+endmodule
+
+Test bench:
+module f_25tb;
+reg clk,rst;
+wire [2:0]count;
+wire enb1,enb2,y;
+f_25 dut(clk,rst,count,y,enb1,enb2);
+initial begin
+{clk,rst}=0;
+end
+always #5 clk=~clk;
+initial begin
+rst=1;
+#10;
+rst=0;
+end
+endmodule
+
+
+
+f/4.5:
+module f_45(input clk,rst,output reg [3:0]count,output y,reg enb1,enb2);
+always@(posedge clk)begin
+if(rst)
+count<=0;
+else if(count<8)
+count<=count+1'b1;
+else
+count<=0;
+end
+always@(posedge clk)begin
+if(count==8||count<3)
+enb1<=1;
+else 
+enb1<=0;
+end
+always@(negedge clk)begin
+if(count>3&&count<8)
+enb2<=1;
+else
+enb2<=0;
+end
+assign y=enb1|enb2;
+endmodule
+
+Test bench:
+module f_45tb;
+reg clk,rst;
+wire [3:0]count;
+wire enb1,enb2,y;
+f_45 dut(clk,rst,count,y,enb1,enb2);
+initial begin
+{clk,rst}=0;
+end
+always #5 clk=~clk;
+initial begin
+rst=1;
+#10;
+rst=0;
+end
+endmodule
+
+
+Frequency dividers(odd-3,5,7):
+module freq_odd(input clk,rst,input [1:0]mode,output reg [2:0]count,output reg f3,f5,f7);
+always@(posedge clk)begin
+if(rst)begin
+count<=0;
+f3<=0;
+f5<=0;
+f7<=0;
+end
+else if(count<6)
+count<=count+1'b1;
+else 
+count<=0;
+case(mode)
+2'b00:begin
+       if(count<3)
+       f3=count[1];
+ 
+       else
+       f3<=0;
+       end
+      
+2'b01:begin
+       if(count<5)
+       f5=count[2];
+       else
+       f5<=0;
+       end
+2'b11:begin
+       if(count<7)
+       f7=count[2];
+       else
+       f7<=0;
+       end
+ endcase
+ end
+endmodule
+
+Test bench:
+module freq_odd_tb;
+reg clk,rst;
+reg [1:0]mode;
+wire [2:0]count;
+freq_odd dut(clk,rst,mode,count,f3,f5,f7);
+initial begin
+{clk,rst,mode}=0;
+end
+always #5 clk=~clk;
+initial begin
+mode=2'b11;
+rst=1;
+#10;
+rst=0;
+end
+endmodule
+
+
+Frequency dividers(even-2,4,8):
+module freq_even(input clk,rst,input [1:0]mode,output reg [2:0]count,output reg f2,f4,f8);
+always@(posedge clk)begin
+if(rst)begin
+count<=0;
+f2<=0;
+f4<=0;
+f8<=0;
+end
+else if(count<8)
+count<=count+1'b1;
+else 
+count<=0;
+case(mode)
+2'b00:begin
+       if(count<2)
+       f2=count[1];
+ 
+       else
+       f2<=0;
+       end
+      
+2'b01:begin
+       if(count<4)
+       f4=count[2];
+       else
+       f4<=0;
+       end
+2'b11:begin
+       if(count<8)
+       f8=count[2];
+       else
+       f8<=0;
+       end
+ endcase
+ end
+endmodule
+
+test bench:
+module freq_even_tb;
+reg clk,rst;
+reg [1:0]mode;
+wire [2:0]count;
+wire f2,f4,f8;
+freq_even dut(clk,rst,mode,count,f2,f4,f8);
+initial begin
+{clk,rst,mode}=0;
+end
+always #5 clk=~clk;
+initial begin
+mode=2'b11;
+rst=1;
+#10;
+rst=0;
+end
+endmodule
+
