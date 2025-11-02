@@ -1,0 +1,423 @@
+MUX_2X1:
+gatelevel modeling:
+module mux_2x1(input [1:0]i,input s,output y);
+wire w1,w2;
+not n1(sbar,s);
+and a1(w1,sbar,i[0]);
+and a2(w2,s,i[1]);
+or r1(y,w1,w2);
+endmodule
+
+Behavioural modeling:
+module mux_2x1(input [1:0]i,input s,output reg y);
+always@(*)begin
+case(s)
+1'b0:y=i[0];
+1'b1:y=i[1];
+endcase
+end
+endmodule
+
+dataflow modeling:
+module mux_2x1(input [1:0]i,input s,output  y);
+assign y=((~s)&i[0])|s&i[1];
+endmodule
+
+using conditional operator:
+module mux_2x1(input [1:0]i,input s,output  y);
+assign y=(s)?i[1]:i[0];
+endmodule
+
+Test bench:
+module mux_2x1_tb;
+reg [1:0]i_tb;
+reg s;
+wire y;
+integer i;
+mux_2x1 dut(i_tb,s,y);
+initial begin
+{i_tb,s}=0;
+begin
+for(i=0;i<8;i=i+1)begin
+{i_tb,s}=i;
+#5;
+$display("i_tb=%b,s=%b,y=%b",i_tb,s,y);
+end
+end
+end
+endmodule
+
+
+MUX_4X1:
+gatelevel modeling:
+module mux_4x1(input [3:0]i,input [1:0]s,output y);
+not n1(s0bar ,s[0]);
+not n2(s1bar,s[1]);
+and a1(w1,s0bar,s1bar,i[0]);
+and a2(w2,s0bar,s[1],i[1]);
+and a3(w3,s[2],s1bar,i[2]);
+and a4(w4,s[0],s[1],i[3]);
+or r1(y,w1,w2,w3,w4);
+endmodule
+
+Behavioural modeling:
+module mux_4x1(input [3:0]i,input [1:0]s,output reg y);
+always@(*)begin
+case(s)
+2'b00:y=i[0];
+2'b01:y=i[1];
+2'b10:y=i[2];
+2'b11:y=i[3];
+default:y=0;
+endcase
+end
+endmodule
+
+dataflow modeling:
+module mux_4x1(input [3:0]i,input [1:0]s,output  y);
+assign y=((!s[0])&(!s[1])&i[0])|((!s[0])&s[1]&i[1])|(s[0]&((!s[1])&i[2])|s[0]&s[1]&i[3]);
+endmodule
+
+using conditional operator:
+module mux_4x1(input [3:0]i,input [1:0]s,output y);
+assign y=(!s[1])?((!s[0])?i[0]:i[1]):(!s[0]?i[2]:i[3]);
+endmodule
+
+
+Test bench:
+module mux_4x1_tb;
+reg [3:0]i_tb;
+reg [1:0]s;
+wire y;
+integer i;
+mux_4x1 dut(i_tb,s,y);
+initial begin
+{i_tb,s}=0;
+begin
+for(i=0;i<64;i=i+1)begin
+#5;
+{i_tb,s}=i;
+#5;
+$display("i_tb=%b,s=%b,y=%b",i_tb,s,y);
+end
+end
+end
+endmodule
+
+
+MUX_1x8:
+gatelevl modeling:
+module mux_8x1(input [7:0]i,input [2:0]s,output y);
+wire w1,w2,w3,w4,w5,w6,w7,w8;
+not n1(s0bar,s[0]);
+not n2(s1bar,s[1]);
+not n3(s2bar,s[2]);
+and a1(w1,s0bar,s1bar,s2bar,i[0]);
+and a2(w2,s2bar,s1bar,s[0],i[1]);
+and a3(w3,s2bar,s[1],s0bar,i[2]);
+and a4 (w4,s2bar,s[1],s[0],i[3]);
+and a5(w5,s[2],s1bar,s0bar,i[4]);
+and a6(w6,s[2],s1bar,s[0],i[5]);
+and a7(w7,s[2],s[1],s0bar,i[6]);
+and a8(w8,s[2],s[1],s[0],i[7]);
+or r1(y,w1,w2,w3,w4,w5,w6,w7,w8);
+endmodule
+
+Behavioural modeling:
+module mux_8x1(input [7:0]i,input [2:0]s,output reg y);
+always@(*)begin
+case(s)
+2'b000:y=i[0];
+2'b001:y=i[1];
+2'b010:y=i[2];
+2'b011:y=i[3];
+2'b100:y=i[4];
+2'b101:y=i[5];
+2'b110:y=i[6];
+2'b111:y=i[7];
+default:y=0;
+endcase
+end   
+endmodule
+
+dataflow modeling:
+module mux_8x1(input [7:0]i,input [2:0]s,output y);
+assign y=((~s[2])&(~s[1])&(~s[0])&i[0])|((~s[2])&(~s[1])&s[0]&i[1])|((~s[2])&s[1]&(~s[0])&i[2])|((~s[2])&s[1]&s[0]&i[3])|(s[2]&(~s[1])&(~s[0])&i[4])|(s[2]&(~s[1])&s[0]&i[5])|(s[2]&s[1]&(~s[0])&i[6])|(s[2]&s[1]&s[0]&i[7]);
+endmodule
+
+module mux_8x1(input [7:0]i,input [2:0]s,output y);
+assign y=(s[2]==0)?((s[1]==0)?((s[0]==0)?i[0]:i[1]):((s[0]==0)?i[2]:i[3])):((s[1]==0)?((s[0]==0)?i[4]:i[5]):((s[0]==0)?i[6]:i[7]));
+endmodule
+
+Test bench:
+module mux_8x1_tb;
+reg [7:0]i_tb;
+reg [2:0]s;
+wire y;
+integer i;
+mux_8x1 dut(i_tb,s,y);
+initial begin
+{i_tb,s}=0;
+begin
+for(i=0;i<2048;i=i+1)begin
+{i_tb,s}=i;
+#5;
+end
+end
+end
+endmodule
+
+
+DEMUX_1X2:
+module demux_1x2(input i,s,output [1:0]y);
+not n1(sbar,s);
+and a1(y[0],sbar,i);
+and a2(y[1],s,i);
+endmodule
+
+module demux_1x2(input i,s,output reg [1:0]y);
+always@(*)begin
+case(s)
+1'b0:y[0]=i;
+1'b1:y[1]=i;
+default:y=0;
+endcase
+end
+endmodule
+
+module demux_1x2(input i,s,output [1:0]y);
+assign y[0]=(~s)&i;
+assign y[1]=s&i;
+endmodule
+
+module demux_1x2(input i,s,output [1:0]y);
+assign y[0]=(!s)?i:0;
+assign y[1]=(s)?i:0;
+endmodule
+
+
+Test bench:
+module demux_1x2_tb;
+reg i_tb,s;
+wire [1:0]y;
+integer i;
+demux_1x2 dut(i_tb,s,y);
+initial begin
+{i_tb,s}=0;
+begin
+for(i=0;i<4;i=i+1)begin
+{i_tb,s}=i;
+#5;
+end
+end
+end
+endmodule
+
+
+DEMUX_1x4:
+module demux_1x4(input i,input [1:0]s,output [3:0]y);
+not n1(s0bar,s[0]);
+not n2(s1bar,s[1]);
+and a1(y[0],s0bar,s1bar,i);
+and a2(y[1],s1bar,s[0],i);
+and a3(y[2],s[1],s0bar,i);
+and a4(y[3],s[1],s[0],i);
+endmodule
+
+module demux_1x4(input i,input [1:0]s,output reg [3:0]y);
+always@(*)begin
+case(s)
+2'b00:begin
+       y[0]=i;
+      y[1]=0;
+      y[2]=0;
+       y[3]=0;
+      end
+2'b01:begin
+       y[0]=0;
+      y[1]=i;
+      y[2]=0;
+       y[3]=0;
+       end
+2'b10:begin
+       y[0]=0;
+      y[1]=0;
+      y[2]=i;
+      y[3]=0;
+      end
+     
+2'b11:begin
+         y[0]=0;
+         y[1]=0;
+       y[2]=0;
+       y[3]=i;
+       end
+default:y=0;
+endcase
+end
+endmodule
+
+module demux_1x4(input i,input [1:0]s,output [3:0]y);
+assign y[0]=(~s[0])&(~s[1])&i;
+assign y[1]=(~s[1])&s[0]&i;
+assign y[2]=s[1]&(~s[0])&i;
+assign y[3]=s[1]&s[0]&i;
+endmodule
+
+module demux_1x4(input i,input [1:0]s,output  [3:0]y);
+assign y[0]=(!s[1])&&(!s[0])?i:0;
+assign y[1]=(!s[1])&&(s[0])?i:0;
+assign y[2]=(s[1])&&(!s[0])?i:0;
+assign y[3]=s[1]&&s[0]?i:0;
+endmodule
+
+Test bench:
+module demux_1x4_tb;
+reg i_tb;
+reg [1:0]s;
+wire [3:0]y;
+integer i;
+demux_1x4 dut (i_tb,s,y);
+initial begin
+{i_tb,s}=0;
+begin
+for(i=0;i<8;i=i+1)begin
+{i_tb,s}=i;
+#5;
+end
+end
+end
+endmodule
+
+
+DEMUX_1X8:
+module demux_1x8(input i,input[2:0]s,output [7:0]y );
+not n1(s0bae,s[0]);
+not n2(s1bar,s[1]);
+not n3(s2bar,s[2]);
+and a1(y[0],s2bar,s1bar,s0bar,i);
+and a2(y[1],s2bar,s1bar,s[0],i);
+and a3(y[2],s2bar,s[1],s0bar,i);
+and a4(y[3],s2bar,s[1],s[0],i);
+and a5(y[4],s[2],s1bar,s0bar,i);
+and a6(y[5],s[2],s1bar,s[0],i);
+and a7(y[6],s[2],s[1],s0bar,i);
+and a8(y[7],s[2],s[1],s[0],i);
+endmodule
+
+
+module demux_1x8(input i,input [2:0]s,output [7:0]y);
+assign y[0]=(!s[2])&&(!s[1])&&(!s[0])?i:0;
+assign y[1]=(!s[2])&&(!s[1])&&(s[0])?i:0;
+assign y[2]=(!s[2])&&(s[1])&&(!s[0])?i:0;
+assign y[3]=(!s[2])&&(s[1])&&(s[0])?i:0;
+assign y[4]=(s[2])&&(!s[1])&&(!s[0])?i:0;
+assign y[5]=(s[2])&&(!s[1])&&(s[0])?i:0;
+assign y[6]=(s[2])&&(s[1])&&(!s[0])?i:0;
+assign y[7]=(s[2])&&(s[1])&&(s[0])?i:0;
+endmodule
+
+
+module demux_1x8(input i,input [2:0]s,output [7:0]y);
+assign y[0]=(~s[2])&(~s[1])&(~s[0])&i;
+assign y[1]=(~s[2])&(~s[1])&(s[0])&i;
+assign y[2]=(~s[2])&(s[1])&(~s[0])&i;
+assign y[3]=(~s[2])&(s[1])&(s[0])&i;
+assign y[4]=(s[2])&(~s[1])&(~s[0])&i;
+assign y[5]=(s[2])&(~s[1])&(s[0])&i;
+assign y[6]=(s[2])&(s[1])&(~s[0])&i;
+assign y[7]=(s[2])&(s[1])&(s[0])&i;
+endmodule
+
+Test bench:
+module demux_1x8_tb;
+reg [2:0]s;
+reg i_tb;
+wire [7:0]y;
+integer i;
+demux_1x8 dut(i_tb,s,y);
+initial begin
+{s,i_tb}=0;
+begin
+for(i=0;i<2048;i=i+1)begin
+{s,i_tb}=i;
+#1;
+$display("s=%b,i_tb=%b,y=%b",s,i_tb,y);
+end
+end
+end
+endmodule
+
+
+mux_4x1 with mux_2x1:
+module mux2x1(input a,b,s,output reg y);
+always@(*)
+begin
+case(s)
+0:y=a;
+1:y=b;
+default:y=0;
+endcase
+end
+endmodule
+module mux4x1(input[1:0]s,input[3:0]i,output y1);
+wire [0:1]w;
+mux2x1 mux1(.s(s[0]),.a(i[0]),.b(i[1]),.y(w[0]));
+mux2x1 mux2(.s(s[0]),.a(i[2]),.b(i[3]),.y(w[1]));
+mux2x1 mux3(.s(s[1]),.a(w[0]),.b(w[1]),.y(y1));
+endmodule
+
+Test bench:
+module mux_4x1_tb;
+reg [3:0]i_tb;
+reg [1:0]s;
+wire y;
+integer i;
+mux_4x1 dut(i_tb,s,y);
+initial begin
+{i_tb,s}=0;
+begin
+for(i=0;i<64;i=i+1)begin
+#5;
+{i_tb,s}=i;
+#5;
+$display("i_tb=%b,s=%b,y=%b",i_tb,s,y);
+end
+end
+end
+endmodule
+
+demux_1x8 with demux1x2:
+module DEMUX(input i,s,output y1,y2);
+not n1(sbar,s);
+and a1(y1,sbar,i);
+and a2(y2,s,i);
+endmodule
+module demux1x8(input i1,input [2:0]s,output [7:0]y);
+wire [5:0]w;
+DEMUX dm1(i1,s[2],w[0],w[1]);
+DEMUX dm2(w[0],s[1],w[2],w[3]);
+DEMUX dm3(w[1],s[1],w[4],w[5]);
+DEMUX dm4(w[2],s[0],y[0],y[1]);
+DEMUX dm5(w[3],s[0],y[2],y[3]);
+DEMUX dm6(w[4],s[0],y[4],y[5]);
+DEMUX dm7(w[5],s[0],y[6],y[7]);
+endmodule
+
+Test bench:
+module tb;
+reg i1_tb;
+reg [2:0]s_tb;
+wire [7:0]y3_tb;
+integer i;
+demux1x8 dut(i1_tb,s_tb,y3_tb);
+initial begin
+i1_tb = 1;
+for (i=0;i<8;i=i+1)begin
+{s_tb }=i;
+#1
+$display("i1_tb = %b,s_tb = %b,y3_tb = %b",i1_tb,s_tb,y3_tb);
+end
+end
+endmodule
+
