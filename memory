@@ -1,0 +1,130 @@
+Ram memory:
+module module_ram(input clk,rst,wr_en,rd_en,input [2:0]wr_add,rd_add,input [7:0]data_in, output reg [7:0]dout
+
+    );
+    reg [7:0]mem[0:7];
+    
+    integer i;
+    
+    //reset logic synchronous
+    always @(posedge clk)begin
+      if(rst)
+       for(i=0;i<8;i=i+1)begin
+        mem[i]<=0;
+       end
+      end
+       
+      //write logic&read logic
+      
+      always @(posedge clk)begin
+        if(wr_en)
+           begin
+             mem[wr_add]<=data_in;
+            end
+           else
+             if(rd_en)
+              begin
+               dout<=mem[rd_add];
+              end
+         end
+endmodule
+
+
+Test bench:
+module module_spram_tb(
+
+    );
+    reg clk,rst,wr_en,rd_en;
+    reg [3:0]wr_add,rd_add;
+    reg [7:0]data_in;
+    wire [7:0]dout;
+    
+    module_ram dut(clk,rst,wr_en,rd_en,wr_add,rd_add,data_in,dout);
+    
+    initial begin
+      clk=0;
+      forever #5 clk=~clk;
+    end
+     initial begin
+     {wr_en,rd_en,wr_add,rd_add,data_in}<=1'b0;
+      @(negedge clk)
+       rst=1;
+      @(negedge clk)
+       rst=0;
+      @(negedge clk)
+       wr_en=1;
+       wr_add=5;
+       data_in=8;
+      #100;
+      @(negedge clk)
+       wr_en=0;
+       rd_en=1;
+       rd_add=wr_add;
+    end
+endmodule
+
+
+
+
+FIFO Memory:
+module fifo(input clk,rst,wr_enb,rd_enb,input [7:0]din,output reg [7:0]dout,output full,empty);
+reg [7:0]mem[7:0];
+reg [2:0]wr_ptr,rd_ptr;
+integer i;
+always@(posedge clk)
+begin
+if(rst)begin
+for(i=0;i<8;i=i+1)begin
+mem[i]<=0;
+wr_ptr<=0;
+rd_ptr<=0;
+end
+end
+else if(wr_enb)begin
+mem[wr_ptr]<=din;
+wr_ptr<=wr_ptr+1'b1;
+if(rd_enb)
+dout<=mem[rd_ptr];
+rd_ptr<=rd_ptr+1'b1;
+end
+end
+
+assign empty=(wr_ptr==rd_ptr);
+assign full=(wr_ptr+1==rd_ptr);
+
+endmodule
+
+Test bench:
+module fifo_tb;
+reg clk,rst,wr_enb,rd_enb;
+reg [7:0]din;
+reg [2:0]wr_ptr;
+reg [2:0]rd_ptr;
+wire full,empty;
+wire [7:0]dout;
+fifo dut(clk,rst,wr_enb,rd_enb,din,dout,full,empty);
+initial begin
+{clk,rst,wr_enb,rd_enb,din}=0;
+end
+always #5 clk=~clk;
+initial begin
+rst=1;
+#10;
+rst=0;
+@(posedge clk)
+wr_enb=1;
+din=4'b1011;
+#10;
+din=4'b1010;
+#10;
+din=4'b1100;
+#10;
+din=4'b0110;
+wr_ptr=5;
+@(posedge clk)
+rd_enb=1;
+rd_ptr=5;
+end
+endmodule
+
+
