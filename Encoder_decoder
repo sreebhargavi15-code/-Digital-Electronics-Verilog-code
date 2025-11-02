@@ -1,0 +1,210 @@
+ENCODER_4x2:
+module enc_4x2(input [3:0]i,output [1:0]y);
+or r1(y[1],i[2],i[3]);
+or r2(y[0],i[1],i[3]);
+endmodule
+
+module enc_4x2(input [3:0]i,output [1:0]y);
+assign y[1]=i[2]|i[3];
+assign y[0]=i[1]|i[3];
+endmodule
+
+module enc_4x2(input [3:0]i,output reg [1:0]y);
+always@(*)begin
+case(i)
+4'b0001:y=2'b00;
+4'b0010:y=2'b01;
+4'b0100:y=2'b10;
+4'b1000:y=2'b11;
+default:y=0;
+endcase
+end
+endmodule
+
+Test bench:
+module enc_4x2_tb;
+reg [3:0]i_tb;
+wire [1:0]y;
+integer i;
+enc_4x2 dut(i_tb,y);
+initial begin
+{i_tb}=0;
+end
+initial begin
+for(i=0;i<16;i=i+1)begin
+#5;
+if(i==0)
+begin
+i_tb[i]=1;
+end
+else
+begin
+i_tb[i]=1;
+i_tb[i-1]=0;
+#1;
+end
+end
+end
+endmodule
+
+
+ENCODER_8x3:
+module enc_8x3(input [7:0]i,output [3:0]y);
+assign y[0]=i[4]||i[5]||i[6]||i[7];
+assign y[1]=i[2]||i[3]||i[6]||i[7];
+assign y[2]=i[1]||i[3]||i[5]||i[7];
+endmodule
+
+module enc_8x3(input [7:0]i,output reg [3:0]y);
+always@(*)begin
+case(i)
+8'b00000001:y=3'b000;
+8'b00000010:y=3'b001;
+8'b00000100:y=3'b010;
+8'b00001000:y=3'b011;
+8'b00010000:y=3'b100;
+8'b00100000:y=3'b101;
+8'b01000000:y=3'b110;
+8'b10000000:y=3'b111;
+endcase
+end
+endmodule
+
+module enc_8x3(input [7:0]i,output [3:0]y);
+or r1(y[0],i[4],i[5],i[6],i[7]);
+or r2(y[1],i[2],i[3],i[6],i[7]);
+or r3(y[2],i[1],i[3],i[5],i[7]);
+endmodule
+Test bench:
+module enc_8x3_tb;
+reg [7:0]i_tb;
+wire [2:0]y;
+integer i;
+enc_8x3 dut(i_tb,y);
+initial begin
+{i_tb}=0;
+end
+initial begin
+for(i=0;i<8;i=i+1)begin
+#5;
+if(i==0)
+i_tb[i]=1;
+else
+begin
+i_tb[i]=1;
+i_tb[i-1]=0;
+end
+end
+end
+endmodule
+
+
+DECODER_2x4:
+module dec_2x4(input [1:0]i,output [3:0]y);
+not n1(i0bar,i[0]);
+not n2(i1bar,i[1]);
+and a1(y[0],i0bar,i1bar);
+and a2(y[1],i1bar,i[0]);
+and a3(y[2],i[1],i0bar);
+and a4(y[3],i[1],i[0]);
+endmodule
+
+
+module dec_2x4(input [1:0]i,output reg [3:0]y);
+always@(*)begin
+case(i)
+2'b00:y=4'b0001;
+2'b01:y=4'b0010;
+2'b10:y=4'b0100;
+2'b11:y=4'b1000;
+default:y=4'b0000;
+endcase
+end
+endmodule
+
+module dec_2x4(input [1:0]i,output [3:0]y);
+assign y[0]=(~i[1])&(~i[0]);
+assign y[1]=(~i[1])&(i[0]);
+assign y[2]=(i[1])&(~i[0]);
+assign y[3]=(i[1])&(i[0]);
+endmodule
+Test bench:
+module dec_2x4_tb;
+reg [1:0]i_tb;
+wire [3:0]y;
+integer i;
+dec_2x4 dut(i_tb,y);
+initial begin
+{i_tb}=0;
+begin
+for(i=0;i<4;i=i+1)begin
+{i_tb}=i;
+#1;
+end
+end
+end
+endmodule
+
+
+DECODER_3x8:
+module dec_3x8(input [2:0]i,output [7:0]y);
+not n1(i0bar,i0);
+not n2(i1bar,i1);
+not n3(i2bar,i2);
+and a1(y[0],i2bar,i1bar,i0bar);
+and a2(y[1],i2bar,i1bar,i[0]);
+and a3(y[2],i2bar,i[1],i0bar);
+and a4(y[3],i2bar,i[1],i[0]);
+and a5(y[4],i[2],i1bar,i0bar);
+and a6(y[5],i[2],i1bar,i[0]);
+and a7(y[6],i[2],i[1],i0bar);
+and a8(y[7],i[2],i[1],i[0]);
+endmodule
+
+
+module dec_3x8(input [2:0]i,output reg [7:0]y);
+always@(*)begin
+case(i)
+3'b000:y=8'b00000001;
+3'b001:y=8'b00000010;
+3'b010:y=8'b00000100;
+3'b011:y=8'b00001000;
+3'b100:y=8'b00010000;
+3'b101:y=8'b00100000;
+3'b110:y=8'b01000000;
+3'b111:y=8'b10000000;
+default:y=0;
+endcase
+end
+endmodule
+       
+module dec_3x8(input [2:0]i,output  [7:0]y);
+assign y[0]=(~i[2])&(~i[1])&(~i[0]);
+assign y[1]=(~i[2])&(~i[1])&(i[0]);
+assign y[2]=(~i[2])&(i[1])&(~i[0]);
+assign y[3]=(~i[2])&i[1]&i[0];
+assign y[4]=i[2]&(~i[1])&(~i[0]);
+assign y[5]=i[2]&(~i[1])&i[0];
+assign y[6]=i[2]&i[1]&(~i[0]);
+assign y[7]=i[2]&i[1]&i[0];
+endmodule
+
+Test bench:
+module dec_3x8_tb;
+reg [2:0]i_tb;
+wire [7:0]y;
+integer i;
+dec_3x8 dut(i_tb,y);
+initial begin
+{i_tb}=0;
+begin
+for(i=0;i<8;i=i+1)begin
+{i_tb}=i;
+#1;
+end
+end
+end
+endmodule
+
+
+
