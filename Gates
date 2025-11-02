@@ -1,0 +1,39 @@
+AND gate:
+module AND(input a,b,output y);
+and a1 (y,a,b);
+endmodule
+
+OR gate:
+module OR(input a,b,output y);
+or r1(y,a,b);
+endmodule
+
+NOT gate:
+module NOT(input a,output abar);
+not n1(abar,a);
+endmodule
+
+XOR gate:
+module XOR(input a,b,output y);
+xor x1(y,a,b);
+endmodule
+
+XNOR gate:
+module XNOR(input a,b,output y);
+xnor x1(y,a,b);
+endmodule
+
+NOR gate:
+module NOR(input a,b,output y);
+nor n1(y,a,b);
+endmodule
+
+NAND gate:
+module NAND(input a,b,output y);
+nand n1(y,a,b);
+endmodule
+
+
+
+ 
+
